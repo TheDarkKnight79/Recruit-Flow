@@ -35,41 +35,34 @@ data = {
 }
 df = pd.DataFrame(data)
 
-# 4. Kennzahlen (KPIs) oben anzeigen
-st.subheader("Quick Stats")
-kpi1, kpi2, kpi3 = st.columns(3)
-kpi1.metric("Bewerber Gesamt", len(df))
-kpi2.metric("Status: Kontaktiert", len(df[df["Status"] == "Kontaktiert"]))
-kpi3.metric("Status: Eingeladen", len(df[df["Status"] == "Eingeladen"]))
+# --- Diesen Teil in deinem Code suchen und anpassen ---
 
-st.divider()
-
-# 5. Hauptbereich: Grafik & Liste
-left_column, right_column = st.columns([1, 1])
-
-with left_column:
-    st.subheader("Status-Verteilung")
-    fig = px.pie(df, names='Status', hole=0.4, color_discrete_sequence=px.colors.qualitative.Pastel)
-    st.plotly_chart(fig, use_container_width=True)
-
-with right_column:
-    st.subheader("Bewerber: Status 'Kontaktiert'")
+# 4. Sidebar für Filter (Damit sie links permanent erscheint)
+with st.sidebar:
+    st.header("Filter & Optionen")
+    st.markdown("Nutze diese Filter, um die Ansicht anzupassen.")
     
-    # Filter für die Liste
-    df_kontaktiert = df[df["Status"] == "Kontaktiert"]
-    
-    # LÖSUNG FÜR DEIN PROBLEM: st.dataframe mit fester Höhe und Scrollbalken
-    # 'use_container_width' sorgt dafür, dass es die Spalte ausfüllt
-    # 'height=300' erzwingt den Scrollbalken, wenn die Liste länger wird
-    st.dataframe(
-        df_kontaktiert, 
-        use_container_width=True, 
-        height=300, 
-        hide_index=True
+    # Beispiel für einen interaktiven Filter in der Sidebar
+    status_filter = st.multiselect(
+        "Status auswählen:",
+        options=df["Status"].unique(),
+        default=df["Status"].unique()
     )
     
-    st.info("💡 Du kannst in der Tabelle oben rechts auf das Vergrößern-Icon klicken oder Spalten sortieren.")
+    st.divider()
+    st.info("Präsentations-Modus: Aktiv")
 
+# 5. Daten basierend auf Sidebar-Filter filtern
+df_filtered = df[df["Status"].isin(status_filter)]
+
+# 6. Kennzahlen (KPIs) - jetzt mit gefilterten Daten
+st.subheader("Quick Stats")
+kpi1, kpi2, kpi3 = st.columns(3)
+kpi1.metric("Bewerber (gefiltert)", len(df_filtered))
+kpi2.metric("Status: Kontaktiert", len(df_filtered[df_filtered["Status"] == "Kontaktiert"]))
+kpi3.metric("Status: Eingeladen", len(df_filtered[df_filtered["Status"] == "Eingeladen"]))
+
+# ... (Rest des Codes wie gehabt, aber df durch df_filtered ersetzen)
 # 6. Footer
 st.divider()
 st.caption("Recruit Flow Pro V1.0 | Bereit für die Präsentation morgen")
